@@ -6,4 +6,5 @@
 button.btn.btn-primary { width: 100%; background-color: #008b8b; border-color: #008b8b; }
 .login-form button.btn.btn-primary{margin-top: 20px;}
 a.forgot-password{color: #fff;float: right;text-decoration: none;}
+.error-message{color: red;}
 /*loginform end*/
