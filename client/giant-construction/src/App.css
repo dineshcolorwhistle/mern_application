@@ -1,0 +1,9 @@
+/*loginform start*/
+.login-section { width: 400px; padding: 30px; background-color: #000; position: absolute; top:50%; left:50%; transform: translate(-50%,-50%); box-shadow: 0px 11px 35px 2px rgba(0, 0, 0, 0.14); border-radius: 20px;}
+.form-group { margin-bottom: 20px; }
+.logo-sec img{width: 50%;}
+.logo-sec { text-align: center; margin-bottom: 20px; }
+button.btn.btn-primary { width: 100%; background-color: #008b8b; border-color: #008b8b; }
+.login-form button.btn.btn-primary{margin-top: 20px;}
+a.forgot-password{color: #fff;float: right;text-decoration: none;}
+/*loginform end*/
