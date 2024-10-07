@@ -24,7 +24,7 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar2 from '../../assets/avatars/2.jpg'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const HeaderDropdown = () => {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const HeaderDropdown = () => {
         <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
         <CDropdownItem href="#">
           <CIcon icon={cilUser} className="me-2" />
-          Profile
+          <Link to="/dashboard/profile">Profile</Link> 
         </CDropdownItem>
         <CDropdownDivider />
         <CDropdownItem onClick={handleLogout} className='logout-link'>
