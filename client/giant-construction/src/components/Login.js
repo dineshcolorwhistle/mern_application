@@ -1,36 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from '../assets/gc-logo.png';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 const Login = () => {
    const[username,setUsername] = useState('');
    const[password,setPassword] = useState('');
    const[message,setMessage] = useState('');
 
    const navigate = useNavigate();
-    
+
+   useEffect(() => {
+    const fetchCookie = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/dashboard', { withCredentials: true });
+     
+        if(response.data.message === 'logged'){
+         navigate('/dashboard');
+       }
+       else{
+        navigate('/');
+       }
+      } catch (error) {
+        
+      }
+    };
+  
+    fetchCookie();
+  }, [navigate]);
+
 const handleChange = (e) => {
 const {name, value} = e.target;
 if(name === 'username'){
-    setUsername(value)
+    setUsername(value);
+    setMessage(""); 
 }
 if(name === 'password'){
-    setPassword(value)
+    setPassword(value);
+  
 }
 }
 const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault();    
     try {
-      const response = await axios.post('http://localhost:5000/login', { username, password });
-     if(response.data == 'valid user'){
-        navigate('/dashboard');
-        setMessage('');
-    }
-   }
+        const response = await axios.post(
+            'http://localhost:5000/login',
+            { username, password },
+            { withCredentials: true }
+          );
+          console.log(response.data.message);
+          if(response.data.message === "valid user"){
+            navigate('/dashboard'); 
+          }
+          else{
+                setMessage(response.data.message);             
+          }
+            
+   } 
     catch (error) {
-        setMessage('Invalid credentials')
+       
     }
   };
+
+
+
+
+
+
     return (
         <section className='admin-registration'>
          <div className='container'>
@@ -47,7 +83,7 @@ const handleLogin = async (e) => {
                                 <div className='form-group'>
                                     <input type="password" name="password" value={password} placeholder="Password" className='form-control' onChange={handleChange}/>
                                 </div>
-                                <a className="forgot-password" href="#">Forgot password?</a>
+                                <Link className="forgot-password" to="/forgot-password">Forgot password?</Link>
                                 <span className='error-message'>{message}</span>
                                 <button type="submit" className='btn btn-primary'>Login</button>
                         </form>
