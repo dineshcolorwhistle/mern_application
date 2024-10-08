@@ -53,8 +53,9 @@ app.post('/login', async (req, res) => {
     else if (user.username === username) {
     const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {     
-          req.session.username = username;     
-          return res.json({ message: 'valid user' });       
+          req.session.userinfo = user;
+          
+          return res.json({ message: 'valid user', userdata: user});       
       } else {
         return res.json({ message: 'Invalid credentials' });
       }
@@ -66,15 +67,17 @@ app.post('/login', async (req, res) => {
 
 // Dashboard route
 app.get('/dashboard', (req, res) => {
+  
   const sessionCookie = req.cookies['connect.sid'];
   if (!sessionCookie) {
     res.json({ message: 'loggedout' });
   }
  else{
-  res.json({
-    message: 'Profile data',
+ 
+  return res.json({
     userId: req.session.id,
-    username: req.session.username,
+    username: req.session.userinfo.name,
+    email: req.session.userinfo.email,
     message:'logged'
   });
  }
@@ -114,16 +117,11 @@ app.post('/add', async (req, res) => {
       await employee.save();
       res.json({ message: 'Success', employee });
     }
-
-   
     
   } catch (error) {
     res.json({ error: error.message });
   }
 });
-
-
-
 
 app.get('/users', async (req,res) => {
   try{
@@ -148,19 +146,13 @@ app.delete('/delete/:id', async (req, res) => {
 
 app.put('/update/:id', async (req, res) => {
   const userId = req.params.id;
-  const { email, ...restOfBody } = req.body; // Destructure email from req.body
-
-  try {
-    // Check if the updated email already exists, excluding the current user
-    const existingUser = await Employee.findOne({ email: email, _id: { $ne: userId } });
-    
+  const { email, ...restOfBody } = req.body; 
+  try {   
+    const existingUser = await Employee.findOne({ email: email, _id: { $ne: userId } });    
     if (existingUser) {
       return res.json({ message: 'Email already exists' });
-    }
-
-    // If email is not in use, proceed with the update
+    }    
     const updatedEmployee = await Employee.findByIdAndUpdate(userId, { email, ...restOfBody }, { new: true });
-    
     res.json({ message: 'Update successful', employee: updatedEmployee });
   } catch (error) {
     res.status(500).json({ error: error.message });

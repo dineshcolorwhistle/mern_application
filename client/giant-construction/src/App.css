@@ -130,3 +130,6 @@ h3{margin-bottom: 20px !important;}
 .manage-users { padding-bottom: 30px; }
 .filter-section{padding: 20px 0px;}
 ol.breadcrumb{margin-bottom: 0px;padding: 10px 20px;}
+.user-profile h4{text-transform: capitalize;}
+.user-profile {padding: 10px;display: flex;align-items: center;gap: 15px;}
+ul.header-nav .dropdown-item{padding: 10px 15px !important;}

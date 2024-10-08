@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Logo from '../assets/gc-logo.png';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { gsap } from 'gsap';
 
 const Login = () => {
    const[username,setUsername] = useState('');
    const[password,setPassword] = useState('');
    const[message,setMessage] = useState('');
+   const usernameRef = useRef();
+   const boxRef = useRef(null);
 
    const navigate = useNavigate();
 
    useEffect(() => {
+    gsap.to(boxRef.current, { y: -190, duration: .5 });
+    
     const fetchCookie = async () => {
       try {
         const response = await axios.get('http://localhost:5000/dashboard', { withCredentials: true });
@@ -48,7 +53,6 @@ const handleLogin = async (e) => {
             { username, password },
             { withCredentials: true }
           );
-          console.log(response.data.message);
           if(response.data.message === "valid user"){
             navigate('/dashboard'); 
           }
@@ -72,13 +76,13 @@ const handleLogin = async (e) => {
          <div className='container'>
             <div className='row'>
                 <div className='col-md-12 d-flex justify-content-center'>
-                    <div className='login-section'>
+                    <div ref={boxRef} className='login-section'>
                         <form onSubmit={handleLogin} className='login-form'>
                             <div className='logo-sec'>
                                 <img src={Logo} alt="Logo"/>
                             </div>
                                 <div className='form-group'>
-                                    <input type="text" name="username" value={username} placeholder="Username" className='form-control' onChange={handleChange} />
+                                    <input ref={usernameRef} type="text" name="username" value={username} placeholder="Username" className='form-control' onChange={handleChange} />
                                 </div>
                                 <div className='form-group'>
                                     <input type="password" name="password" value={password} placeholder="Password" className='form-control' onChange={handleChange}/>
