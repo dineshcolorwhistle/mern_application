@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 5000;
 
+
 // CORS setup
 app.use(cors({
   origin: 'http://localhost:3000',  // Your React frontend
@@ -18,7 +19,7 @@ app.use(session({
   resave: false,  
   saveUninitialized: false, 
   cookie: {
-    maxAge: 1000 * 60 * 60,  
+    maxAge: 1000 * 60 * 60 * 60,  
     httpOnly: true,  
     secure: false,  
     sameSite: 'lax',  
@@ -94,6 +95,7 @@ const employeeSchema = new mongoose.Schema({
   email: String,
   company: String,
   role: String,
+  image: String,
   createdDate: { 
     type: String, 
     default: () => {
@@ -159,6 +161,77 @@ app.put('/update/:id', async (req, res) => {
   }
 });
 
+var multer = require('multer');
+const fs = require('fs'); // Require fs module
+const path = require('path'); // For working with file and directory paths
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Uploads directory
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now(); // Create a unique timestamp
+    cb(null, uniqueSuffix + file.originalname); // Set filename to include timestamp
+  }
+});
+
+const upload = multer({ storage: storage });
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.post('/uploadimage', upload.single('image'), async (req, res) => {
+  try {
+    const existingAdmin = await Employee.findOne({ role: 'Admin' }); // Find the admin user
+
+    
+    if (!existingAdmin) {
+      return res.status(404).json({ status: 'error', message: 'Admin not found' });
+    }
+
+    const newImageName = req.file.filename; // New uploaded image filename
+    const oldImageName = existingAdmin.image; // Old image filename (if it exists)
+    
+    // If there's an old image, remove it from the uploads folder
+    if (oldImageName) {
+      
+      const oldImagePath = path.join(__dirname, 'uploads', oldImageName);
+
+      // Check if the old image exists before trying to delete it
+      try {
+        await fs.promises.access(oldImagePath); // Check if file exists
+        await fs.promises.unlink(oldImagePath); // Delete the old image file
+        console.log('Old image deleted successfully.');
+      } catch (unlinkErr) {
+        console.error('Error deleting the old image:', unlinkErr);
+      }
+    }
+
+    // Update the admin's image field in the database
+    existingAdmin.image = newImageName;
+    await existingAdmin.save();
+
+   return res.json({ status: 'uploaded', image: newImageName });
+   
+  } catch (error) {
+    console.error('Error during image upload:', error);
+    return res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+
+// Add a new route to fetch the image for the admin
+app.get('/getProfileImage', async (req, res) => {
+  try {
+    const existingAdmin = await Employee.findOne({ role: 'Admin' });
+    
+    if (!existingAdmin || !existingAdmin.image) {
+      return res.status(404).json({ message: 'No image found for the admin.' });
+    }
+
+    return res.json({ image: existingAdmin.image }); // Return the image name or URL
+  } catch (error) {
+    console.error('Error fetching profile image:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Start server
 app.listen(PORT, () => {

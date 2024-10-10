@@ -31,6 +31,7 @@ const HeaderDropdown = () => {
   const navigate = useNavigate();
   const[username,setUsername] = useState('');
   const[email,setEmail] = useState('');
+  const[image,setImage] = useState('');
   const handleLogout = async () => {
     try {
       const response = await axios.post('http://localhost:5000/logout', {}, { withCredentials: true });
@@ -55,15 +56,33 @@ const HeaderDropdown = () => {
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    const fetchProfileImg = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/getProfileImage', { withCredentials: true });
+        setImage(response.data.image); // This should log the image filename
+        
+      } catch (error) {
+        console.log('Error fetching profile image:', error);
+      }
+    };
+  
+    fetchProfileImg();
+  }, [image]);
+  
+
+
+  
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        <CAvatar src={avatar2} size="md" />
+        <CAvatar src={`http://localhost:5000/uploads/${image}`} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end"> 
         <div className='user-profile'>
           <div className='profile-image'>
-          <CAvatar src={avatar2} size="md" />
+          <CAvatar src={`http://localhost:5000/uploads/${image}`} size="md" />
           </div>
           <div className='profile-info'>
         <b>{username}</b>  
