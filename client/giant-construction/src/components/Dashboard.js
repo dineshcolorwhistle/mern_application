@@ -12,9 +12,9 @@ const navigate = useNavigate();
 useEffect(() => {
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/dashboard', { withCredentials: true });
+      const response = await axios.get('http://localhost:5001/dashboard', { withCredentials: true });
       setProfile(response.data);
-      console.log(response.data);     
+         
       if(response.data.message !== 'logged'){
         navigate('/');
       }

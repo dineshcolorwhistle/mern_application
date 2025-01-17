@@ -10,8 +10,8 @@ import ForgotPassword from './components/Forgot_password';
 import { Suspense } from 'react';
 
 
+function App() { 
 
-function App() {
   return (
     <div className="giant-construction">
       <Router>

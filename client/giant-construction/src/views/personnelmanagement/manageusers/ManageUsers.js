@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useDispatch, useSelector} from 'react-redux';
+import { fetchUsers } from '../../../slices/userslist';
 
 import {
   CButton,
-  CCard,
-  CCardBody,
-  CCardHeader,
   CCol,
-  CForm,
-  CFormCheck,
-  CFormInput,
-  CFormFeedback,
-  CFormLabel,
-  CFormSelect,
-  CFormTextarea,
-  CInputGroup,
-  CInputGroupText,
+  CForm, 
+  CFormInput, 
+  CFormSelect,  
   CRow,
   CModal,CModalHeader,CModalTitle,CModalBody,CModalFooter,
-  CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CSpinner
+  CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, 
 } from "@coreui/react";
 
 const ManageUsers = () => {
+  const dispatch = useDispatch();
+  const { data: users, loading, error } = useSelector((state) => state.users);
   const [validated, setValidated] = useState(false);
   const [visibleUserForm, setVisibleUserForm] = useState(false);
   const[usersData, setusersData] = useState([]);
@@ -41,8 +36,12 @@ const ManageUsers = () => {
   const[nameFilter, setNameFilter] = useState('');
   const[companyFilter, setCompanyFilter] = useState('');
   const[emailFilter, setEmailFilter] = useState('');
+  
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
-  const filteredUsers = usersData.filter(user => {
+  const filteredUsers = users.filter(user => {
     return (
       (user.name.toLowerCase().includes(nameFilter.toLowerCase())) &&
       (user.company.toLowerCase().includes(companyFilter.toLowerCase())) &&
@@ -50,11 +49,12 @@ const ManageUsers = () => {
     );
   });
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  
-  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);  
+  const listuser = users.filter(user => user.company === 'ColorWhistle');
 
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;  
+  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem); 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   const values= {
@@ -102,7 +102,7 @@ const ManageUsers = () => {
       setValidated(true);
     }
     
-    axios.post('http://localhost:5000/add', values)
+    axios.post('http://localhost:5001/add', values)
                 .then(response => {   
                   setemailValidate(response.data.message);      
                   setValidated(false);      
@@ -128,17 +128,6 @@ const ManageUsers = () => {
               
   };
 
-  useEffect(() => {
-    axios.get('http://localhost:5000/users')  
-      .then(response => {         
-        setusersData(response.data);        
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
-
-
 
   const handleEdit = (user) => {  
     setVisibleUserForm(!visibleUserForm);
@@ -158,7 +147,7 @@ const ManageUsers = () => {
       role,
     }; 
    
-    axios.put(`http://localhost:5000/update/${currentUserId}`, updatedUser)
+    axios.put(`http://localhost:5001/update/${currentUserId}`, updatedUser)
       .then(response => {
         if (response.data.message === 'Update successful') {       
           const updatedUsersData = usersData.map(user => 
@@ -189,7 +178,7 @@ const ManageUsers = () => {
     setCurrentUserId(user._id);
     console.log(user._id);
   
-    axios.delete(`http://localhost:5000/delete/${user._id}`)
+    axios.delete(`http://localhost:5001/delete/${user._id}`)
       .then(response => {
         if (response.data.message === 'deleted') {
           const updatedUsersData = usersData.filter(u => u._id !== user._id);
@@ -222,6 +211,14 @@ const ManageUsers = () => {
 
   return (
     <>
+    <ul>
+{
+  listuser.map(list => (
+    <li>{list.name}</li>
+  ))
+}
+    </ul>
+    
       <div className="manage-users">
         <div className="header-manage-users">
           <h3>Manage Users</h3>

@@ -16,7 +16,7 @@ const Profile = () => {
 
         try{
             const response = await axios.post(
-                'http://localhost:5000/uploadimage',formData);
+                'http://localhost:5001/uploadimage',formData);
 
             if(response.data.status === 'uploaded'){
                 window.location.reload(); 
@@ -32,7 +32,7 @@ const Profile = () => {
         useEffect(() => {
             const fetchProfileImg = async () => {
               try {
-                const response = await axios.get('http://localhost:5000/getProfileImage', { withCredentials: true });
+                const response = await axios.get('http://localhost:5001/getProfileImage', { withCredentials: true });
                 setProfileImg(response.data.image); // This should log the image filename
                 console.log(response.data.image);
               } catch (error) {
@@ -46,7 +46,7 @@ const Profile = () => {
     return (
         <div className="update-profile-section">
         <h3>Manage Profile</h3>
-        <img src={`http://localhost:5000/uploads/${profileImg}`} />
+        <img src={`http://localhost:5001/uploads/${profileImg}`} />
         <form onSubmit={submitImage}>
             <input type="file" name="file" accept="image/*" onChange={handleChange} />
             <button type="submit">submit</button>

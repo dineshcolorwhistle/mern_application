@@ -1,18 +1,29 @@
-import { legacy_createStore as createStore } from 'redux'
+import { configureStore } from '@reduxjs/toolkit';
+import profileReducer from './slices/profileSlice';
+import usersReducer from './slices/userslist';
 
 const initialState = {
   sidebarShow: true,
   theme: 'light',
-}
+};
 
-const changeState = (state = initialState, { type, ...rest }) => {
+// Reducer for managing the sidebar and theme
+const uiReducer = (state = initialState, { type, ...rest }) => {
   switch (type) {
     case 'set':
-      return { ...state, ...rest }
+      return { ...state, ...rest };
     default:
-      return state
+      return state;
   }
-}
+};
 
-const store = createStore(changeState)
-export default store
+// Create the store using configureStore
+const store = configureStore({
+  reducer: {
+    profile: profileReducer, // Profile slice reducer
+    ui: uiReducer, 
+    users: usersReducer, // Employeelist slice reducer
+  },
+});
+
+export default store;

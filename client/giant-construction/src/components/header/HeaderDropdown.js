@@ -2,39 +2,31 @@ import React, {useState, useEffect} from 'react'
 import axios from 'axios'
 import {
   CAvatar,
-  CBadge,
   CDropdown,
   CDropdownDivider,
-  CDropdownHeader,
   CDropdownItem,
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
 import {
-  cilBell,
-  cilCreditCard,
-  cilCommentSquare,
-  cilEnvelopeOpen,
-  cilFile,
   cilLockLocked,
-  cilSettings,
-  cilTask,
   cilUser,
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
+import { useSelector } from 'react-redux';
 
-import avatar2 from '../../assets/avatars/2.jpg'
 import { Link, useNavigate } from 'react-router-dom'
 
 
 const HeaderDropdown = () => {
   const navigate = useNavigate();
-  const[username,setUsername] = useState('');
-  const[email,setEmail] = useState('');
+  const { username, email} = useSelector((state) => state.profile);
+  
+
   const[image,setImage] = useState('');
   const handleLogout = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/logout', {}, { withCredentials: true });
+      const response = await axios.post('http://localhost:5001/logout', {}, { withCredentials: true });
       if(response.data.message === 'logged out'){
       navigate('/');
       }
@@ -45,9 +37,7 @@ const HeaderDropdown = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/dashboard', { withCredentials: true });
-        setUsername(response.data.username)
-        setEmail(response.data.email)
+        const response = await axios.get('http://localhost:5001/dashboard', { withCredentials: true });
       } catch (error) {     
           
       }
@@ -57,9 +47,10 @@ const HeaderDropdown = () => {
   }, []);
 
   useEffect(() => {
+   
     const fetchProfileImg = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/getProfileImage', { withCredentials: true });
+        const response = await axios.get('http://localhost:5001/getProfileImage', { withCredentials: true });
         setImage(response.data.image); // This should log the image filename
         
       } catch (error) {
@@ -77,12 +68,12 @@ const HeaderDropdown = () => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        <CAvatar src={`http://localhost:5000/uploads/${image}`} size="md" />
+        <CAvatar src={`http://localhost:5001/uploads/${image}`} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end"> 
         <div className='user-profile'>
           <div className='profile-image'>
-          <CAvatar src={`http://localhost:5000/uploads/${image}`} size="md" />
+          <CAvatar src={`http://localhost:5001/uploads/${image}`} size="md" />
           </div>
           <div className='profile-info'>
         <b>{username}</b>  

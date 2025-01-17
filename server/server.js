@@ -5,8 +5,10 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const app = express();
-const PORT = 5000;
-
+const PORT = 5001;
+const nodemailer = require('nodemailer');
+const CONNECTDB = require("./mongodb.js");
+require('dotenv').config();
 
 // CORS setup
 app.use(cors({
@@ -14,6 +16,7 @@ app.use(cors({
   credentials: true,  // Allow credentials (cookies) to be sent
 }));
 app.use(cookieParser());
+app.use(express.json());
 app.use(session({
   secret: 'mysecretkey',  
   resave: false,  
@@ -26,14 +29,10 @@ app.use(session({
   },
 }));
 
-app.use(express.json());
+
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/giant-construction', {
-  serverSelectionTimeoutMS: 30000 // Increase timeout
-})
-.then(() => console.log('DB connected'))
-.catch(err => console.error('DB connection error:', err));
+CONNECTDB();
 
 
 const userSchema = new mongoose.Schema({
@@ -52,7 +51,7 @@ app.post('/login', async (req, res) => {
       return res.json({ message: 'Invalid credentials' });
     }
     else if (user.username === username) {
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = user.password === password;
       if (isMatch) {     
           req.session.userinfo = user;
           
@@ -109,7 +108,7 @@ const Employee = mongoose.model('users', employeeSchema);  // Use a distinct mod
 
 app.post('/add', async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, name } = req.body;
     const existingUser = await Employee.findOne({ email });
     if (existingUser) {
       res.json({ message: 'Email already exists' });
@@ -118,6 +117,25 @@ app.post('/add', async (req, res) => {
       const employee = new Employee(req.body);
       await employee.save();
       res.json({ message: 'Success', employee });
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      const adminmailoption = {
+        from: process.env.EMAIL_USER, // Sender email
+        to: "prabhu.colorwhistle@gmail.com", // Admin email
+        subject: "New Registration!",
+        text: `Hi admin,\n\nA new user has registered:\n\nName: ${name}\nEmail: ${email}\n\nBest regards,\nSystem Notification`,
+      }
+      
+        // Send user email
+        await transporter.sendMail(adminmailoption);
+        console.log("User email sent successfully.");
+     
     }
     
   } catch (error) {
@@ -235,5 +253,6 @@ app.get('/getProfileImage', async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log('Server running on 5000');
+  console.log('Server running on 5001');
 });
+  

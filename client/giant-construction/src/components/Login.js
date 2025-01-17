@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import Logo from '../assets/gc-logo.png';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setProfileData } from '../slices/profileSlice';
+
 import { gsap } from 'gsap';
 
 const Login = () => {
@@ -10,6 +13,7 @@ const Login = () => {
    const[message,setMessage] = useState('');
    const usernameRef = useRef();
    const boxRef = useRef(null);
+   const dispatch = useDispatch();
 
    const navigate = useNavigate();
 
@@ -18,8 +22,8 @@ const Login = () => {
     
     const fetchCookie = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/dashboard', { withCredentials: true });
-     
+        const response = await axios.get('http://localhost:5001/dashboard', { withCredentials: true });
+       
         if(response.data.message === 'logged'){
          navigate('/dashboard');
        }
@@ -49,11 +53,15 @@ const handleLogin = async (e) => {
     e.preventDefault();    
     try {
         const response = await axios.post(
-            'http://localhost:5000/login',
+            'http://localhost:5001/login',
             { username, password },
             { withCredentials: true }
           );
-          if(response.data.message === "valid user"){
+          if(response.data.message === "valid user"){          
+            dispatch(setProfileData({
+              username:response.data.userdata.name,
+              email:response.data.userdata.email
+            }))
             navigate('/dashboard'); 
           }
           else{
